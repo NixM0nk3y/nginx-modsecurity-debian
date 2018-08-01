@@ -4,6 +4,7 @@
 	dh $@ --with quilt
 
 override_dh_auto_configure:
+	cd libmodsecurity && ./autogen.sh
 	cd libmodsecurity && ./build.sh
 	cd libmodsecurity && ./configure --disable-shared --disable-examples CFLAGS='-O2 -fPIC' CXXFLAGS='-O2 -fPIC'
 	cd libmodsecurity/others && make

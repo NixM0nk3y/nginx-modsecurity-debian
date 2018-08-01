@@ -14,7 +14,7 @@ PACKAGE_VERSION = 1.0.1
 # https://github.com/SpiderLabs/ModSecurity-nginx.
 #
 # If you change this number, then you MUST bump PACKAGE_VERSION.
-MODSECURITY_REF = 1.0.0
+MODSECURITY_REF = master
 
 # The libmodsecurity (https://github.com/SpiderLabs/ModSecurity)
 # Git commit that you want to compile ModSecurity-nginx against.
@@ -95,7 +95,7 @@ $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz: ModSecurity-nginx-$(MODSECURITY_
 
 ModSecurity-nginx-$(MODSECURITY_REF).tar.gz:
 	wget --output-document=ModSecurity-nginx-$(MODSECURITY_REF).tar.gz \
-		https://github.com/SpiderLabs/ModSecurity-nginx/archive/v$(MODSECURITY_REF).tar.gz
+		https://github.com/SpiderLabs/ModSecurity-nginx/archive/$(MODSECURITY_REF).tar.gz
 
 nginx-$(NGINX_VERSION).tar.gz:
 	wget https://nginx.org/download/nginx-$(NGINX_VERSION).tar.gz
