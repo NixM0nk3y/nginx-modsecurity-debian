@@ -1,11 +1,11 @@
 Source: libnginx-mod-http-modsecurity
 Section: httpd
 Priority: optional
-Maintainer: Hongli Lai <hongli@phusion.nl>
-Uploaders: Hongli Lai <hongli@phusion.nl>
+Maintainer: Nick Gregory <nick@openenterprise.co.uk>
+Uploaders: Nick Gregory <nick@openenterprise.co.uk>
 Build-Depends: debhelper (>= 9), autoconf, automake, apache2-dev,
  libpcre3-dev, libxml2-dev, pkg-config, libyajl-dev, zlib1g-dev,
- libcurl4-openssl-dev, libgeoip-dev, libssl-dev, quilt
+ libcurl4-openssl-dev, libgeoip-dev, liblmdb-dev, libpcre++-dev, libssl-dev, quilt
 Standards-Version: 3.9.8.0
 
 Package: libnginx-mod-http-modsecurity

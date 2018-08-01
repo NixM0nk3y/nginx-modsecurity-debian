@@ -21,7 +21,7 @@ MODSECURITY_REF = 1.0.0
 # You will probably want the latest commit on the `v3/master` branch.
 #
 # If you change this number, then you MUST bump PACKAGE_VERSION.
-LIBMODSECURITY_REF = 6f92c8914a822f
+LIBMODSECURITY_REF = f66cd4111f08a26d4429cb0071e992deb050928a
 
 # The Nginx version that you want to compile ModSecurity-nginx against.
 # This must be the exact same version as the one installable via the
@@ -31,7 +31,7 @@ LIBMODSECURITY_REF = 6f92c8914a822f
 # If you change this number, then:
 # - you MUST bump PACKAGE_VERSION.
 # - you MUST synchronize the corresponding numbers in spec/control.
-NGINX_VERSION = 1.14.0
+NGINX_VERSION = 1.10.3
 
 # If you've updated the package, but without updating MODSECURITY_REF,
 # LIBMODSECURITY_REF or NGINX_VERSION (that is, you did not update PACKAGE_VERSION),
@@ -43,7 +43,7 @@ NGINX_VERSION = 1.14.0
 #
 # Also, be sure to edit spec/control and add a changelog entry there
 # with `$(PACKAGE_VERSION)-$(PACKAGE_REVISION)` as version number.
-PACKAGE_REVISION = 1~bionic1
+PACKAGE_REVISION = 1~stretch1
 
 DPKG_BUILDPACKAGE_ARGS =
 
@@ -58,7 +58,7 @@ source-package: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc
 dev: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc
 	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
 	cp -dpR spec $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && eatmydata dpkg-buildpackage -b -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
+	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && dpkg-buildpackage -b -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
 
 clean:
 	rm -rf *.tar.gz *.xz *.git *.dsc *.buildinfo *.changes *.deb *.ddeb *.upload $(PACKAGE_NAME)-*
@@ -68,10 +68,10 @@ $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc: $(PACKAGE_NAME)_$(PA
 	test -e $(PACKAGE_NAME)-$(PACKAGE_VERSION) || tar xzf $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz
 	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
 	cp -dpR spec $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && eatmydata dpkg-buildpackage -S -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
+	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && dpkg-buildpackage -S -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
 
 $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).deb: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && eatmydata dpkg-buildpackage -b -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
+	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && dpkg-buildpackage -b -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
 
 
 $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz: ModSecurity-nginx-$(MODSECURITY_REF).tar.gz nginx-$(NGINX_VERSION).tar.gz libmodsecurity.git/HEAD

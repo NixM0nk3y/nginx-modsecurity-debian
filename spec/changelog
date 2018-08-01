@@ -1,11 +1,5 @@
-libnginx-mod-http-modsecurity (1.0.1-1~bionic1) bionic; urgency=medium
+libnginx-mod-http-modsecurity (1.0.1-1~stretch1) stretch; urgency=medium
 
-  * Upgrade to Nginx 1.14.0, same as what's shipped with Ubuntu 18.04 final.
+  * Initial debian version
 
- -- Hongli Lai <hongli@phusion.nl>  Sat, 28 Apr 2018 11:14:26 +0000
-
-libnginx-mod-http-modsecurity (1.0.0-1~bionic1) bionic; urgency=medium
-
-  * Initial release.
-
- -- Hongli Lai <hongli@phusion.nl>  Wed, 21 Feb 2018 13:59:26 +0000
+ -- Nick Gregory <nick@openenterprise.co.uk>  Wed, 01 Aug 2018 11:14:26 +0000
