@@ -1,5 +1,0 @@
-libnginx-mod-http-modsecurity (1.0.1-1~stretch1) stretch; urgency=medium
-
-  * Initial debian version
-
- -- Nick Gregory <nick@openenterprise.co.uk>  Wed, 01 Aug 2018 11:14:26 +0000

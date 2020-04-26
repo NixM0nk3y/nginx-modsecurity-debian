@@ -1,105 +1,115 @@
-PACKAGE_NAME = libnginx-mod-http-modsecurity
-
-# The Debian package version. Every time MODSECURITY_REF, LIBMODSECURITY_REF,
-# or NGINX_VERSION changes, you must bump this number.
 #
-# When bumping this number, you MUST also:
-# - reset PACKAGE_REVISION.
-# - edit spec/control and add a changelog entry there with
-#   `$(PACKAGE_VERSION)-$(PACKAGE_REVISION)` as version number.
-PACKAGE_VERSION = 1.0.2
-
-# The version of ModSecurity-nginx you want to package. This must
-# correspond to a specific tag in the ModSecurity-nginx Git repository:
-# https://github.com/SpiderLabs/ModSecurity-nginx.
+#   Copyright 2015  Xebia Nederland B.V.
 #
-# If you change this number, then you MUST bump PACKAGE_VERSION.
-MODSECURITY_REF = master
-
-# The libmodsecurity (https://github.com/SpiderLabs/ModSecurity)
-# Git commit that you want to compile ModSecurity-nginx against.
-# You will probably want the latest commit on the `v3/master` branch.
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
 #
-# If you change this number, then you MUST bump PACKAGE_VERSION.
-LIBMODSECURITY_REF = 156527a6f8880ee56bfd75023647ca3a98e97200
-
-# The Nginx version that you want to compile ModSecurity-nginx against.
-# This must be the exact same version as the one installable via the
-# Ubuntu APT repository. You can use https://packages.ubuntu.com/
-# to find out which version that is.
+#       http://www.apache.org/licenses/LICENSE-2.0
 #
-# If you change this number, then:
-# - you MUST bump PACKAGE_VERSION.
-# - you MUST synchronize the corresponding numbers in spec/control.
-NGINX_VERSION = 1.10.3
-
-# If you've updated the package, but without updating MODSECURITY_REF,
-# LIBMODSECURITY_REF or NGINX_VERSION (that is, you did not update PACKAGE_VERSION),
-# then you must bump this number.
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 #
-# Only modify the number before the `~` part. Don't touch the text after
-# the `~` part. For example, if you want to bump `1~bionic1` then
-# change it to `2~bionic1`.
-#
-# Also, be sure to edit spec/control and add a changelog entry there
-# with `$(PACKAGE_VERSION)-$(PACKAGE_REVISION)` as version number.
-PACKAGE_REVISION = 1~stretch1
+REGISTRY_HOST=docker.io
+USERNAME=nixm0nk3y
+NAME=docker-bareos-arm
 
-DPKG_BUILDPACKAGE_ARGS =
+RELEASE_SUPPORT := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))/.make-release-support
+IMAGE=$(REGISTRY_HOST)/$(USERNAME)/$(NAME)
 
-.PHONY: all source-package binary-package dev clean
+VERSION=$(shell . $(RELEASE_SUPPORT) ; getVersion)
+TAG=$(shell . $(RELEASE_SUPPORT); getTag)
 
-all: binary-package
+SHELL=/bin/bash
 
-binary-package: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).deb
+DOCKER_BUILD_CONTEXT=.
+DOCKER_FILE_PATH=Dockerfile
 
-source-package: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc
+.PHONY: pre-build docker-build post-build build release patch-release minor-release major-release tag check-status check-release showver \
+	push pre-push do-push post-push
 
-dev: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc
-	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
-	cp -dpR spec $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && dpkg-buildpackage -b -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
+build: pre-build docker-build post-build
 
-clean:
-	rm -rf *.tar.gz *.xz *.git *.dsc *.buildinfo *.changes *.deb *.ddeb *.upload $(PACKAGE_NAME)-*
+pre-build:
 
 
-$(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc: $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz
-	test -e $(PACKAGE_NAME)-$(PACKAGE_VERSION) || tar xzf $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz
-	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
-	cp -dpR spec $(PACKAGE_NAME)-$(PACKAGE_VERSION)/debian
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && dpkg-buildpackage -S -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
-
-$(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).deb: $(PACKAGE_NAME)_$(PACKAGE_VERSION)-$(PACKAGE_REVISION).dsc
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION) && dpkg-buildpackage -b -us -uc -jauto $(DPKG_BUILDPACKAGE_ARGS)
+post-build:
 
 
-$(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz: ModSecurity-nginx-$(MODSECURITY_REF).tar.gz nginx-$(NGINX_VERSION).tar.gz libmodsecurity.git/HEAD
-	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)
-	mkdir $(PACKAGE_NAME)-$(PACKAGE_VERSION)
-	mkdir $(PACKAGE_NAME)-$(PACKAGE_VERSION)/nginx
+pre-push:
 
-	tar -C $(PACKAGE_NAME)-$(PACKAGE_VERSION) --strip-components 1 \
-		-xzf ModSecurity-nginx-$(MODSECURITY_REF).tar.gz
-	tar -C $(PACKAGE_NAME)-$(PACKAGE_VERSION)/nginx --strip-components 1 \
-		-xzf nginx-$(NGINX_VERSION).tar.gz
 
-	git clone libmodsecurity.git $(PACKAGE_NAME)-$(PACKAGE_VERSION)/libmodsecurity
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION)/libmodsecurity && git checkout v3/master
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION)/libmodsecurity && git reset --hard $(LIBMODSECURITY_REF)
-	cd $(PACKAGE_NAME)-$(PACKAGE_VERSION)/libmodsecurity && git submodule update --init --recursive
-	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VERSION)/libmodsecurity/.git
+post-push:
 
-	find $(PACKAGE_NAME)-$(PACKAGE_VERSION) -print0 | xargs -0 touch -d '2018-04-28 00:00:00 UTC'
-	tar -c $(PACKAGE_NAME)-$(PACKAGE_VERSION) | xz -zT 0 - > $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz
-	@echo Written $(PACKAGE_NAME)_$(PACKAGE_VERSION).orig.tar.xz
 
-ModSecurity-nginx-$(MODSECURITY_REF).tar.gz:
-	wget --output-document=ModSecurity-nginx-$(MODSECURITY_REF).tar.gz \
-		https://github.com/SpiderLabs/ModSecurity-nginx/archive/$(MODSECURITY_REF).tar.gz
 
-nginx-$(NGINX_VERSION).tar.gz:
-	wget https://nginx.org/download/nginx-$(NGINX_VERSION).tar.gz
+docker-build: .release
+	docker build $(DOCKER_BUILD_ARGS) -t $(IMAGE):$(VERSION) $(DOCKER_BUILD_CONTEXT) -f $(DOCKER_FILE_PATH)
+	@DOCKER_MAJOR=$(shell docker -v | sed -e 's/.*version //' -e 's/,.*//' | cut -d\. -f1) ; \
+	DOCKER_MINOR=$(shell docker -v | sed -e 's/.*version //' -e 's/,.*//' | cut -d\. -f2) ; \
+	if [ $$DOCKER_MAJOR -eq 1 ] && [ $$DOCKER_MINOR -lt 10 ] ; then \
+		echo docker tag -f $(IMAGE):$(VERSION) $(IMAGE):latest ;\
+		docker tag -f $(IMAGE):$(VERSION) $(IMAGE):latest ;\
+	else \
+		echo docker tag $(IMAGE):$(VERSION) $(IMAGE):latest ;\
+		docker tag $(IMAGE):$(VERSION) $(IMAGE):latest ; \
+	fi
 
-libmodsecurity.git/HEAD:
-	git clone --bare --recurse-submodules https://github.com/SpiderLabs/ModSecurity.git libmodsecurity.git
+.release:
+	@echo "release=0.0.0" > .release
+	@echo "tag=$(NAME)-0.0.0" >> .release
+	@echo INFO: .release created
+	@cat .release
+
+
+release: check-status check-release build push
+
+
+push: pre-push do-push post-push 
+
+do-push: 
+	docker push $(IMAGE):$(VERSION)
+	docker push $(IMAGE):latest
+
+snapshot: build push
+
+showver: .release
+	@. $(RELEASE_SUPPORT); getVersion
+
+tag-patch-release: VERSION := $(shell . $(RELEASE_SUPPORT); nextPatchLevel)
+tag-patch-release: .release tag 
+
+tag-minor-release: VERSION := $(shell . $(RELEASE_SUPPORT); nextMinorLevel)
+tag-minor-release: .release tag 
+
+tag-major-release: VERSION := $(shell . $(RELEASE_SUPPORT); nextMajorLevel)
+tag-major-release: .release tag 
+
+patch-release: tag-patch-release release
+	@echo $(VERSION)
+
+minor-release: tag-minor-release release
+	@echo $(VERSION)
+
+major-release: tag-major-release release
+	@echo $(VERSION)
+
+
+tag: TAG=$(shell . $(RELEASE_SUPPORT); getTag $(VERSION))
+tag: check-status
+	@. $(RELEASE_SUPPORT) ; ! tagExists $(TAG) || (echo "ERROR: tag $(TAG) for version $(VERSION) already tagged in git" >&2 && exit 1) ;
+	@. $(RELEASE_SUPPORT) ; setRelease $(VERSION)
+	git add .
+	git commit -m "bumped to version $(VERSION)" ;
+	git tag $(TAG) ;
+	@ if [ -n "$(shell git remote -v)" ] ; then git push --tags ; else echo 'no remote to push tags to' ; fi
+
+check-status:
+	@. $(RELEASE_SUPPORT) ; ! hasChanges || (echo "ERROR: there are still outstanding changes" >&2 && exit 1) ;
+
+check-release: .release
+	@. $(RELEASE_SUPPORT) ; tagExists $(TAG) || (echo "ERROR: version not yet tagged in git. make [minor,major,patch]-release." >&2 && exit 1) ;
+	@. $(RELEASE_SUPPORT) ; ! differsFromRelease $(TAG) || (echo "ERROR: current directory differs from tagged $(TAG). make [minor,major,patch]-release." ; exit 1)
