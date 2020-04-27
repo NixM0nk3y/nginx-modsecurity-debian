@@ -7,7 +7,7 @@ PACKAGE_NAME = libnginx-mod-http-modsecurity
 # - reset PACKAGE_REVISION.
 # - edit spec/control and add a changelog entry there with
 #   `$(PACKAGE_VERSION)-$(PACKAGE_REVISION)` as version number.
-PACKAGE_VERSION = 1.0.4
+PACKAGE_VERSION = 1.0.5
 
 # The version of ModSecurity-nginx you want to package. This must
 # correspond to a specific tag in the ModSecurity-nginx Git repository:
@@ -102,4 +102,4 @@ nginx-$(NGINX_VERSION).tar.gz:
 	wget https://nginx.org/download/nginx-$(NGINX_VERSION).tar.gz
 
 libmodsecurity.git/HEAD:
-	git clone --bare --recurse-submodules https://github.com/NixM0nk3y/ModSecurity.git libmodsecurity.git
+	git clone --bare --recurse-submodules https://github.com/SpiderLabs/ModSecurity.git libmodsecurity.git
