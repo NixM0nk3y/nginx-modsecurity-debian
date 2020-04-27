@@ -1,7 +1,7 @@
 .DS_Store
 /*.dsc
-/*.deb
-/*.ddeb
+*.deb
+*.ddeb
 /*.tar.gz
 /*.tar.xz
 /*.buildinfo

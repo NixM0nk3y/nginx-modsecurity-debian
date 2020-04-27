@@ -43,7 +43,7 @@ NGINX_VERSION = 1.14.2
 #
 # Also, be sure to edit spec/control and add a changelog entry there
 # with `$(PACKAGE_VERSION)-$(PACKAGE_REVISION)` as version number.
-PACKAGE_REVISION = 2~stretch1
+PACKAGE_REVISION = 2~buster1
 
 DPKG_BUILDPACKAGE_ARGS =
 
