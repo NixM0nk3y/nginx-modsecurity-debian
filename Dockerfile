@@ -2,7 +2,7 @@
 #
 #
 
-FROM arm32v7/debian:buster
+FROM debian:bullseye
 
 LABEL maintainer="Nick Gregory <docker@openenterprise.co.uk>"
 
